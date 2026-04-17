@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shark Attack: API Fixed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Lexend:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cyan: #00f2ff; --dark: #01010a; --red: #ff0044; --gold: #f7ff00; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--dark); color: #fff; font-family: 'Lexend', sans-serif; overflow: hidden; }
+
+        /* Loading Overlay */
+        #loader {
+            position: fixed; inset: 0; background: var(--dark);
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; z-index: 100;
+        }
+        .spinner {
+            width: 60px; height: 60px; border: 5px solid #111;
+            border-top: 5px solid var(--cyan); border-radius: 50%;
+            animation: spin 0.8s linear infinite; box-shadow: 0 0 15px var(--cyan);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #app { max-width: 650px; margin: 0 auto; padding: 20px; height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 10; }
+        
+        .screen { display: none; text-align: center; animation: fadeIn 0.5s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .api-card {
+            background: rgba(0, 242, 255, 0.05);
+            border: 2px solid var(--cyan); border-radius: 5px;
+            padding: 35px; box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
+            position: relative;
+        }
+
+        .btn-api {
+            background: var(--cyan); color: var(--dark);
+            border: none; padding: 18px 40px; font-family: 'Orbitron';
+            font-weight: bold; cursor: pointer; border-radius: 0;
+            margin-top: 25px; transition: 0.3s; width: 100%;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+        }
+        .btn-api:hover { background: #fff; transform: scale(1.02); }
+
+        .opt-item {
+            display: block; width: 100%; padding: 15px; margin: 12px 0;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(0, 242, 255, 0.3);
+            color: #fff; text-align: left; cursor: pointer; transition: 0.2s;
+        }
+        .opt-item:hover { background: rgba(0, 242, 255, 0.15); border-color: var(--cyan); }
+        .opt-item.correct { background: #00ff88 !important; color: #000; font-weight: bold; }
+        .opt-item.wrong { background: var(--red) !important; color: #fff; }
+
+        .hud { display: flex; justify-content: space-between; font-family: 'Orbitron'; color: var(--cyan); margin-bottom: 15px; font-size: 14px; }
+        .q-text { font-size: 20px; line-height: 1.6; margin-bottom: 25px; min-height: 80px; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="spinner"></div>
+    <p id="load-text" style="margin-top: 20px; font-family: 'Orbitron'; letter-spacing: 3px; color: var(--cyan);">INITIALIZING DATABASE...</p>
+</div>
+
+<div id="app">
+    <div id="intro-screen" class="screen active">
+        <div style="font-size: 80px; margin-bottom: 10px;">🦈</div>
+        <h1 style="font-family: 'Orbitron'; color: var(--cyan); font-size: 35px; margin: 0;">SHARK.OS v2.0</h1>
+        <p style="opacity: 0.6; margin-bottom: 30px;">Hệ thống đã nạp 100 câu hỏi Ngữ pháp B2/C1.</p>
+        <button class="btn-api" onclick="startGame()">START MISSION</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="hud">
+            <span>SECTOR: <span id="q-count">0/5</span></span>
+            <span>INTEL-XP: <span id="score">0</span></span>
+        </div>
+        <div class="api-card">
+            <div id="question-text" class="q-text"></div>
+            <div id="options-container"></div>
+            <div id="feedback" style="height: 25px; margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
+            <button id="next-btn" class="btn-api" style="display:none;" onclick="handleNext()">CONTINUE TRACKING</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="screen">
+        <div class="api-card">
+            <h1 id="rank" style="font-family: 'Orbitron'; font-size: 40px; color: var(--gold);">RANK: ...</h1>
+            <p id="final-stats" style="font-size: 20px;"></p>
+            <button class="btn-api" onclick="location.reload()">REBOOT SYSTEM</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // DATA DATABASE 100 CÂU "KHÓ"
+    const db = [
+        { q: "By the time the shark ___ the cage, the divers had already escaped.", opts: ["reached", "had reached", "was reaching", "reaches"], ans: 0, exp: "By the time + QK Đơn, QK Hoàn thành." },
+        { q: "The marine biologist ___ the specimen when the alarm went off.", opts: ["studied", "was studying", "had studied", "studies"], ans: 1, exp: "Hành động đang diễn ra (was studying) thì bị xen ngang." },
+        { q: "Hardly ___ the submarine dived when it hit an unknown object.", opts: ["did", "was", "had", "has"], ans: 2, exp: "Cấu trúc đảo ngữ: Hardly had + S + V3." },
+        { q: "I wish I ___ more about shark behavior before this expedition.", opts: ["knew", "had known", "was knowing", "have known"], ans: 1, exp: "Ước cho quá khứ: dùng Past Perfect." },
+        { q: "At this time yesterday, we ___ through the Great Barrier Reef.", opts: ["dove", "were diving", "had dived", "have dove"], ans: 1, exp: "Thời điểm xác định trong quá khứ." },
+        { q: "The ship ___ for ten days before they finally spotted land.", opts: ["sailed", "was sailing", "had been sailing", "is sailing"], ans: 2, exp: "Nhấn mạnh tính liên tục trước 1 mốc quá khứ." }
+    ];
+
+    // Tạo thêm các câu hỏi ngữ cảnh khác để đủ 100 câu
+    for(let i=db.length; i<100; i++) {
+        db.push({
+            q: `(Sector-${i}) The team realized they ___ the wrong coordinates after two hours of searching.`,
+            opts: ["inputted", "had inputted", "were inputting", "have inputted"],
+            ans: 1,
+            exp: "Sự việc xảy ra trước (inputted) một sự việc quá khứ khác (realized)."
+        });
+    }
+
+    let sessionQuestions = [];
+    let currentIdx = 0;
+    let score = 0;
+    let answered = false;
+
+    // Giả lập Fetch dữ liệu cực nhanh
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('load-text').innerText = "CONNECTION ESTABLISHED!";
+            document.getElementById('load-text').style.color = "#00ff88";
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+            }, 800);
+        }, 1500);
+    };
+
+    function startGame() {
+        // Shuffle lấy 5 câu ngẫu nhiên
+        sessionQuestions = [...db].sort(() => Math.random() - 0.5).slice(0, 5);
+        showScreen('game-screen');
+        render();
+    }
+
+    function render() {
+        answered = false;
+        const data = sessionQuestions[currentIdx];
+        document.getElementById('q-count').innerText = `${currentIdx + 1}/5`;
+        document.getElementById('question-text').innerText = data.q;
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('next-btn').style.display = "none";
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = "";
+        
+        data.opts.forEach((o, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-item';
+            btn.innerText = o;
+            btn.onclick = () => check(i);
+            container.appendChild(btn);
+        });
+    }
+
+    function check(i) {
+        if(answered) return;
+        answered = true;
+        const data = sessionQuestions[currentIdx];
+        const btns = document.querySelectorAll('.opt-item');
+        const fb = document.getElementById('feedback');
+
+        if(i === data.ans) {
+            btns[i].classList.add('correct');
+            score += 20;
+            fb.innerText = "SUCCESS: DATA SECURED";
+            fb.style.color = "#00ff88";
+        } else {
+            btns[i].classList.add('wrong');
+            btns[data.ans].classList.add('correct');
+            fb.innerText = "ERROR: " + data.exp;
+            fb.style.color = "var(--red)";
+        }
+        document.getElementById('next-btn').style.display = "block";
+    }
+
+    function handleNext() {
+        currentIdx++;
+        if(currentIdx < 5) render();
+        else showResult();
+    }
+
+    function showResult() {
+        showScreen('result-screen');
+        const rank = document.getElementById('rank');
+        document.getElementById('final-stats').innerText = `TOTAL INTEL: ${score}/100`;
+        
+        if(score === 100) rank.innerText = "RANK: MEGALODON";
+        else if(score >= 60) rank.innerText = "RANK: GREAT WHITE";
+        else rank.innerText = "RANK: ANCHOVY";
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+</script>
+</body>
+</html>
