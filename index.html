@@ -1,204 +1,1578 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shark Attack: API Fixed</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Lexend:wght@300;600&display=swap" rel="stylesheet">
-    <style>
-        :root { --cyan: #00f2ff; --dark: #01010a; --red: #ff0044; --gold: #f7ff00; }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--dark); color: #fff; font-family: 'Lexend', sans-serif; overflow: hidden; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🎮 English Games Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ================================================================
+   GLOBAL RESET & VARS
+================================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --sky:#e0f7ff;
+  --cloud:#fff;
+  --train-red:#ff4757;
+  --train-blue:#1e90ff;
+  --train-yellow:#ffd32a;
+  --train-green:#2ed573;
+  --train-purple:#a29bfe;
+  --gold:#ffd700;
+  --gold-mid:#f59e0b;
+  --gold-dark:#b45309;
+  --brown-bg:#1a0e00;
+  --brown-mid:#2d1800;
+  --card-bg:rgba(20,10,0,0.88);
+  --border:rgba(255,215,0,0.28);
+  --text-main:#fff8e8;
+  --text-muted:#c49a3a;
+  --text-dim:#8a6535;
+  --blue-light:#7dd3fc;
+  --purple-light:#d8b4fe;
+  --green:#22c55e;
+  --red:#ef4444;
+}
+html{font-size:16px;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:#e0f7ff;
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-        /* Loading Overlay */
-        #loader {
-            position: fixed; inset: 0; background: var(--dark);
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; z-index: 100;
-        }
-        .spinner {
-            width: 60px; height: 60px; border: 5px solid #111;
-            border-top: 5px solid var(--cyan); border-radius: 50%;
-            animation: spin 0.8s linear infinite; box-shadow: 0 0 15px var(--cyan);
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+/* ================================================================
+   SCREENS
+================================================================ */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
 
-        #app { max-width: 650px; margin: 0 auto; padding: 20px; height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 10; }
-        
-        .screen { display: none; text-align: center; animation: fadeIn 0.5s ease; }
-        .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* ================================================================
+   ██████████  LAUNCHER SCREEN  ██████████
+================================================================ */
+#launcher{
+  background:linear-gradient(180deg,#87ceeb 0%,#b0e8f5 40%,#d4f5c8 100%);
+  min-height:100vh; position:relative; overflow:hidden;
+}
 
-        .api-card {
-            background: rgba(0, 242, 255, 0.05);
-            border: 2px solid var(--cyan); border-radius: 5px;
-            padding: 35px; box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
-            position: relative;
-        }
+/* Sky clouds */
+.cloud{
+  position:absolute; background:#fff; border-radius:50px;
+  opacity:.85; pointer-events:none;
+}
+.cloud::before,.cloud::after{
+  content:''; position:absolute; background:#fff; border-radius:50%;
+}
+.c1{width:120px;height:40px;top:8%;left:-120px;animation:floatCloud 22s linear infinite;}
+.c1::before{width:60px;height:60px;top:-28px;left:15px;}
+.c1::after{width:50px;height:50px;top:-20px;left:50px;}
+.c2{width:160px;height:50px;top:20%;left:-160px;animation:floatCloud 30s linear 5s infinite;}
+.c2::before{width:80px;height:80px;top:-38px;left:20px;}
+.c2::after{width:60px;height:60px;top:-25px;left:70px;}
+.c3{width:100px;height:35px;top:35%;left:-100px;animation:floatCloud 25s linear 12s infinite;}
+.c3::before{width:50px;height:50px;top:-22px;left:12px;}
+.c3::after{width:45px;height:45px;top:-18px;left:45px;}
+.c4{width:140px;height:45px;top:55%;left:-140px;animation:floatCloud 28s linear 8s infinite;}
+.c4::before{width:70px;height:70px;top:-32px;left:18px;}
+.c4::after{width:55px;height:55px;top:-22px;left:60px;}
+@keyframes floatCloud{0%{left:-200px}100%{left:110vw}}
 
-        .btn-api {
-            background: var(--cyan); color: var(--dark);
-            border: none; padding: 18px 40px; font-family: 'Orbitron';
-            font-weight: bold; cursor: pointer; border-radius: 0;
-            margin-top: 25px; transition: 0.3s; width: 100%;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
-        }
-        .btn-api:hover { background: #fff; transform: scale(1.02); }
+/* Ground */
+.launcher-ground{
+  position:absolute;bottom:0;left:0;right:0;height:90px;
+  background:linear-gradient(to bottom,#4caf50,#388e3c);
+  border-radius:50% 50% 0 0 / 20px 20px 0 0;
+}
+.launcher-ground::before{
+  content:'';position:absolute;top:-8px;left:0;right:0;height:16px;
+  background:repeating-linear-gradient(90deg,#43a047 0px,#43a047 20px,#66bb6a 20px,#66bb6a 40px);
+  border-radius:8px;
+}
 
-        .opt-item {
-            display: block; width: 100%; padding: 15px; margin: 12px 0;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(0, 242, 255, 0.3);
-            color: #fff; text-align: left; cursor: pointer; transition: 0.2s;
-        }
-        .opt-item:hover { background: rgba(0, 242, 255, 0.15); border-color: var(--cyan); }
-        .opt-item.correct { background: #00ff88 !important; color: #000; font-weight: bold; }
-        .opt-item.wrong { background: var(--red) !important; color: #fff; }
+/* Rail track on ground */
+.launcher-rail{
+  position:absolute;bottom:55px;left:0;right:0;height:12px;
+  background:repeating-linear-gradient(90deg,#795548 0px,#795548 40px,#5d4037 40px,#5d4037 50px);
+}
+.launcher-rail::before,.launcher-rail::after{
+  content:'';position:absolute;left:0;right:0;height:4px;background:#5d4037;
+}
+.launcher-rail::before{top:0;}
+.launcher-rail::after{bottom:0;}
 
-        .hud { display: flex; justify-content: space-between; font-family: 'Orbitron'; color: var(--cyan); margin-bottom: 15px; font-size: 14px; }
-        .q-text { font-size: 20px; line-height: 1.6; margin-bottom: 25px; min-height: 80px; text-align: left; }
-    </style>
+/* Launcher Header */
+.launcher-header{
+  text-align:center;padding:36px 20px 24px;position:relative;z-index:10;
+}
+.launcher-title{
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(32px,7vw,58px);
+  color:#fff;
+  text-shadow:3px 3px 0 #e91e63,6px 6px 0 #c2185b,0 0 30px rgba(255,255,255,.6);
+  letter-spacing:2px;
+  animation:titlePop .6s cubic-bezier(.36,2,.6,1);
+}
+@keyframes titlePop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.launcher-sub{
+  font-size:clamp(13px,2.5vw,17px);
+  color:rgba(255,255,255,.9);
+  font-weight:700;
+  margin-top:6px;
+  text-shadow:1px 1px 3px rgba(0,0,0,.3);
+  letter-spacing:1px;
+}
+
+/* Stars decoration */
+.stars-deco{
+  display:flex;justify-content:center;gap:8px;margin:6px 0 0;
+}
+.star{font-size:22px;animation:twinkleStar 1.5s ease-in-out infinite alternate;}
+.star:nth-child(2){animation-delay:.3s;}
+.star:nth-child(3){animation-delay:.6s;}
+@keyframes twinkleStar{0%{opacity:.4;transform:scale(.8)}100%{opacity:1;transform:scale(1.2)}}
+
+/* ── GAME CARDS ── */
+.cards-container{
+  display:flex;
+  gap:24px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:20px 24px 120px;
+  position:relative;z-index:10;
+}
+
+.game-card{
+  background:#fff;
+  border-radius:28px;
+  padding:32px 24px 28px;
+  width:min(340px,100%);
+  text-align:center;
+  cursor:pointer;
+  transition:transform .3s cubic-bezier(.36,2,.6,1),box-shadow .3s;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 8px 0 rgba(0,0,0,.15), 0 16px 40px rgba(0,0,0,.12);
+  border:3px solid rgba(255,255,255,.8);
+  animation:cardSlideIn .5s cubic-bezier(.36,2,.6,1) both;
+}
+.game-card:nth-child(1){animation-delay:.1s;}
+.game-card:nth-child(2){animation-delay:.25s;}
+@keyframes cardSlideIn{0%{opacity:0;transform:translateY(40px) scale(.9)}100%{opacity:1;transform:translateY(0) scale(1)}}
+
+.game-card:hover{
+  transform:translateY(-8px) scale(1.03);
+  box-shadow:0 16px 0 rgba(0,0,0,.12),0 28px 60px rgba(0,0,0,.15);
+}
+.game-card:active{transform:translateY(-2px) scale(1.01);}
+
+/* Train card theme */
+.card-train{
+  background:linear-gradient(145deg,#fff8f0,#fff);
+}
+.card-train::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,#ff4757,#ff9f43,#ffd32a,#2ed573,#1e90ff,#a29bfe);
+}
+
+/* Gold card theme */
+.card-gold{
+  background:linear-gradient(145deg,#fffbeb,#fff);
+}
+.card-gold::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,#ffd700,#ff8c00,#ffd700,#ff8c00,#ffd700);
+}
+
+.card-emoji{
+  font-size:60px;
+  display:block;
+  margin-bottom:12px;
+  animation:floatEmoji 2.5s ease-in-out infinite;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.15));
+}
+.game-card:nth-child(2) .card-emoji{animation-delay:.8s;}
+@keyframes floatEmoji{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+.card-title{
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(20px,4vw,26px);
+  font-weight:400;
+  margin-bottom:6px;
+}
+.card-train .card-title{color:#ff4757;}
+.card-gold  .card-title{color:#e67e00;}
+
+.card-desc{
+  font-size:13px;color:#666;line-height:1.5;margin-bottom:20px;
+  font-weight:600;
+}
+
+.card-tags{
+  display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;
+}
+.tag{
+  padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;
+  letter-spacing:.5px;
+}
+.card-train .tag{background:#fff0f0;color:#ff4757;border:1.5px solid #ffcdd2;}
+.card-gold  .tag{background:#fffbeb;color:#d97706;border:1.5px solid #fde68a;}
+
+.play-btn{
+  display:inline-block;
+  padding:13px 36px;
+  border:none;border-radius:50px;
+  font-family:'Bubblegum Sans',cursive;
+  font-size:18px;
+  cursor:pointer;
+  letter-spacing:1px;
+  transition:all .2s;
+  box-shadow:0 4px 0 rgba(0,0,0,.2);
+  width:100%;
+}
+.play-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(0,0,0,.2);}
+.play-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.2);}
+.card-train .play-btn{background:linear-gradient(135deg,#ff6b81,#ff4757);color:#fff;}
+.card-gold  .play-btn{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#7c3a00;}
+
+/* Little animated train at bottom */
+.launcher-train{
+  position:absolute;bottom:58px;left:-300px;
+  display:flex;align-items:flex-end;
+  animation:trainRide 12s linear infinite;
+  z-index:20;
+}
+@keyframes trainRide{0%{left:-320px}100%{left:110vw}}
+
+.lt-loco,.lt-car{
+  border-radius:12px 12px 0 0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  position:relative;
+}
+.lt-loco{
+  width:64px;height:46px;
+  background:linear-gradient(135deg,#ff6b81,#ff4757);
+  border:3px solid #c62828;
+  box-shadow:0 4px 12px rgba(255,71,87,.4);
+}
+.lt-loco::before{
+  content:'🚂';font-size:22px;
+}
+.lt-loco::after{
+  content:'';position:absolute;bottom:-6px;left:8px;
+  width:14px;height:14px;border-radius:50%;
+  background:#333;border:3px solid #777;
+  box-shadow:28px 0 0 #333,28px 0 0 3px #777;
+}
+.lt-car{
+  width:52px;height:38px;
+  margin-left:4px;
+  border:3px solid currentColor;
+}
+.lt-car::after{
+  content:'';position:absolute;bottom:-6px;left:6px;
+  width:12px;height:12px;border-radius:50%;
+  background:#333;border:3px solid #777;
+  box-shadow:22px 0 0 #333,22px 0 0 3px #777;
+}
+.lt-c1{background:#fff8f0;border-color:#ff9f43;color:#ff9f43;}
+.lt-c1::before{content:'🌟';}
+.lt-c2{background:#f0fff8;border-color:#2ed573;color:#2ed573;}
+.lt-c2::before{content:'📚';}
+.lt-c3{background:#f0f4ff;border-color:#1e90ff;color:#1e90ff;}
+.lt-c3::before{content:'✨';}
+.lt-smoke{
+  position:absolute;top:-20px;left:20px;
+  font-size:14px;
+  animation:smokeUp 1.5s ease-out infinite;
+  pointer-events:none;
+}
+@keyframes smokeUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-25px) scale(2)}}
+
+/* ================================================================
+   ██████████  TRAIN GAME SCREEN  ██████████
+================================================================ */
+#trainGame{
+  background:linear-gradient(180deg,#c9f0ff 0%,#87ceeb 30%,#b8e6b0 80%,#8bc34a 100%);
+  min-height:100vh;position:relative;overflow:hidden;
+}
+
+/* BG elements */
+.tg-sun{
+  position:fixed;top:20px;right:40px;width:70px;height:70px;
+  background:radial-gradient(circle,#fff9a0,#ffd700);
+  border-radius:50%;
+  box-shadow:0 0 0 15px rgba(255,215,0,.2),0 0 0 30px rgba(255,215,0,.1);
+  z-index:1;
+  animation:sunRotate 20s linear infinite;
+}
+@keyframes sunRotate{0%{box-shadow:0 0 0 15px rgba(255,215,0,.2),0 0 0 30px rgba(255,215,0,.1)}50%{box-shadow:0 0 0 20px rgba(255,215,0,.25),0 0 0 40px rgba(255,215,0,.12)}100%{box-shadow:0 0 0 15px rgba(255,215,0,.2),0 0 0 30px rgba(255,215,0,.1)}}
+
+.tg-cloud{position:fixed;pointer-events:none;z-index:1;}
+.tg-cloud .cc{background:#fff;border-radius:50px;opacity:.9;}
+.tg-cloud .cc::before,.tg-cloud .cc::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+.tgc1{top:6%;left:5%;animation:floatCloud 30s linear infinite;}
+.tgc1 .cc{width:110px;height:38px;}
+.tgc1 .cc::before{width:55px;height:55px;top:-26px;left:12px;}
+.tgc1 .cc::after{width:48px;height:48px;top:-18px;left:48px;}
+.tgc2{top:18%;right:8%;animation:floatCloudR 25s linear infinite;}
+.tgc2 .cc{width:90px;height:30px;}
+.tgc2 .cc::before{width:45px;height:45px;top:-20px;left:10px;}
+.tgc2 .cc::after{width:38px;height:38px;top:-14px;left:40px;}
+@keyframes floatCloudR{0%{right:-150px}100%{right:110vw}}
+
+/* Floating elements */
+.tg-tree{
+  position:fixed;bottom:0;font-size:40px;z-index:2;pointer-events:none;
+  animation:treeAnim 8s ease-in-out infinite;
+}
+@keyframes treeAnim{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.tg-tree:nth-child(1){left:2%;animation-delay:0s;}
+.tg-tree:nth-child(2){left:8%;animation-delay:.5s;font-size:50px;}
+.tg-tree:nth-child(3){right:3%;animation-delay:1s;}
+.tg-tree:nth-child(4){right:10%;animation-delay:1.5s;font-size:35px;}
+
+/* TOP NAV */
+.tg-nav{
+  position:relative;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px 10px;
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(8px);
+  border-bottom:2px solid rgba(255,255,255,.5);
+}
+.tg-back{
+  background:#fff;border:none;border-radius:50px;
+  padding:8px 18px;font-size:13px;font-weight:800;
+  color:#ff4757;cursor:pointer;
+  box-shadow:0 3px 0 rgba(255,71,87,.3);
+  font-family:'Nunito',sans-serif;
+  transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.tg-back:hover{transform:translateY(-2px);box-shadow:0 5px 0 rgba(255,71,87,.3);}
+.tg-nav-title{
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(16px,3.5vw,22px);
+  color:#ff4757;
+  text-shadow:2px 2px 0 rgba(255,71,87,.2);
+}
+.tg-score-pill{
+  background:#fff;border-radius:50px;
+  padding:6px 16px;
+  font-size:13px;font-weight:800;
+  color:#e67e00;
+  box-shadow:0 3px 0 rgba(230,126,0,.25);
+  display:flex;align-items:center;gap:5px;
+}
+
+/* START SCREEN */
+#tgStart{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;
+  min-height:calc(100vh - 64px);
+  padding:20px;
+  position:relative;z-index:10;
+  text-align:center;
+}
+.tg-start-title{
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(30px,7vw,52px);
+  color:#ff4757;
+  text-shadow:3px 3px 0 #fff,6px 6px 0 rgba(255,71,87,.3);
+  margin-bottom:10px;
+  animation:bounceTitle 1s cubic-bezier(.36,2,.6,1);
+}
+@keyframes bounceTitle{0%{transform:scale(0)}100%{transform:scale(1)}}
+.tg-start-sub{
+  font-size:clamp(14px,3vw,18px);
+  color:#555;font-weight:700;
+  background:rgba(255,255,255,.7);
+  padding:8px 20px;border-radius:30px;
+  margin-bottom:24px;
+  backdrop-filter:blur(4px);
+}
+
+/* Preview train */
+.tg-preview-train{
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;margin:20px 0 30px;
+  animation:trainBounce 1s ease-in-out infinite alternate;
+}
+@keyframes trainBounce{0%{transform:translateY(0)}100%{transform:translateY(-6px)}}
+.tg-car-preview{
+  border-radius:16px 16px 0 0;
+  padding:12px 16px;
+  font-size:20px;
+  font-weight:800;
+  color:#fff;
+  text-align:center;
+  position:relative;
+  border:3px solid rgba(0,0,0,.1);
+  min-width:80px;
+  box-shadow:0 6px 0 rgba(0,0,0,.15);
+}
+.tg-car-preview::after{
+  content:'●  ●';
+  position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+  font-size:10px;color:#444;letter-spacing:14px;
+}
+.tc-loco{background:linear-gradient(135deg,#ff6b81,#ff4757);border-color:#c62828;}
+.tc-1{background:linear-gradient(135deg,#ffa07a,#ff7043);}
+.tc-2{background:linear-gradient(135deg,#29b6f6,#0288d1);}
+.tc-3{background:linear-gradient(135deg,#66bb6a,#388e3c);}
+.tc-4{background:linear-gradient(135deg,#ffd54f,#f9a825);}
+.tc-5{background:linear-gradient(135deg,#ba68c8,#7b1fa2);}
+
+.tg-start-btn{
+  background:linear-gradient(135deg,#ff6b81,#ff4757);
+  border:none;border-radius:60px;
+  padding:16px 52px;
+  font-family:'Bubblegum Sans',cursive;
+  font-size:22px;color:#fff;cursor:pointer;
+  box-shadow:0 6px 0 #c62828,0 12px 30px rgba(255,71,87,.35);
+  transition:all .2s;
+  letter-spacing:1px;
+}
+.tg-start-btn:hover{transform:translateY(-4px);box-shadow:0 10px 0 #c62828,0 18px 40px rgba(255,71,87,.4);}
+.tg-start-btn:active{transform:translateY(2px);box-shadow:0 3px 0 #c62828;}
+
+.tg-scenario{
+  font-size:clamp(13px,2.5vw,16px);
+  color:#444;
+  background:rgba(255,255,255,.8);
+  padding:10px 20px;border-radius:20px;
+  margin-bottom:20px;font-weight:700;
+  backdrop-filter:blur(4px);
+  border:2px solid rgba(255,71,87,.2);
+}
+
+/* GAME AREA */
+#tgGame{display:none;padding:16px 16px 40px;position:relative;z-index:10;}
+
+/* ── NEW JOURNEY PROGRESS ── */
+.tg-journey{
+  background:rgba(255,255,255,.55);
+  backdrop-filter:blur(10px);
+  border-radius:24px;
+  padding:14px 16px 18px;
+  margin-bottom:16px;
+  border:2px solid rgba(255,255,255,.8);
+  box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+.tg-journey-label{
+  text-align:center;
+  font-size:11px;font-weight:800;
+  letter-spacing:2px;text-transform:uppercase;
+  color:#888;margin-bottom:12px;
+}
+
+/* The rail line + stops row */
+.tg-rail-row{
+  display:flex;align-items:center;
+  position:relative;
+  padding:0 8px;
+}
+
+/* connecting line behind everything */
+.tg-rail-line{
+  position:absolute;left:8px;right:8px;
+  top:50%;transform:translateY(-50%);
+  height:6px;
+  background:#e0e0e0;
+  border-radius:3px;
+  z-index:0;
+}
+.tg-rail-done{
+  position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg,#ff6b81,#ff4757);
+  border-radius:3px;
+  transition:width .6s cubic-bezier(.36,2,.6,1);
+}
+
+/* each stop node */
+.tg-stop{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;
+  gap:5px;
+  flex:1;
+}
+.tg-stop-circle{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  border:3px solid #e0e0e0;
+  background:#f5f5f5;
+  transition:all .4s cubic-bezier(.36,2,.6,1);
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+.tg-stop-label{
+  font-size:9px;font-weight:800;color:#aaa;
+  letter-spacing:.3px;text-align:center;
+  transition:color .3s;
+  white-space:nowrap;
+}
+
+/* states */
+.tg-stop.done .tg-stop-circle{
+  background:linear-gradient(135deg,#ff6b81,#ff4757);
+  border-color:#ff4757;
+  box-shadow:0 3px 10px rgba(255,71,87,.35);
+}
+.tg-stop.done .tg-stop-label{color:#ff4757;}
+
+.tg-stop.active .tg-stop-circle{
+  background:#fff;
+  border-color:#ff4757;
+  border-width:3px;
+  box-shadow:0 0 0 4px rgba(255,71,87,.15),0 4px 14px rgba(255,71,87,.3);
+  animation:stopPulse .9s ease-in-out infinite alternate;
+}
+.tg-stop.active .tg-stop-label{color:#ff4757;font-size:10px;}
+@keyframes stopPulse{0%{transform:scale(1)}100%{transform:scale(1.12)}}
+
+.tg-stop.upcoming .tg-stop-circle{opacity:.5;}
+.tg-stop.upcoming .tg-stop-label{opacity:.4;}
+
+/* loco at start */
+.tg-loco-node{
+  position:relative;z-index:2;
+  font-size:26px;
+  filter:drop-shadow(0 2px 5px rgba(0,0,0,.18));
+  animation:locoPuff .6s ease-in-out infinite alternate;
+  margin-right:4px;
+  flex-shrink:0;
+}
+@keyframes locoPuff{0%{transform:translateY(0) rotate(-1deg)}100%{transform:translateY(-3px) rotate(1deg)}}
+
+/* Question car card */
+.tg-question-card{
+  background:#fff;
+  border-radius:24px;
+  padding:24px 20px 20px;
+  border:3px solid #ffcdd2;
+  box-shadow:0 8px 0 rgba(255,71,87,.15),0 16px 40px rgba(0,0,0,.08);
+  position:relative;overflow:hidden;
+  animation:cardBounceIn .4s cubic-bezier(.36,2,.6,1);
+}
+@keyframes cardBounceIn{0%{opacity:0;transform:scale(.9) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+
+.tg-car-indicator{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:30px;
+  margin-bottom:14px;font-size:12px;font-weight:800;
+  letter-spacing:.5px;
+}
+
+.tg-q-sentence{
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(16px,3.5vw,21px);
+  color:#333;
+  line-height:1.5;
+  margin-bottom:8px;
+}
+
+.tg-q-hint{
+  font-size:12px;color:#999;
+  font-weight:700;
+  padding:6px 12px;
+  background:#f8f8f8;
+  border-radius:10px;
+  margin-bottom:16px;
+  display:inline-block;
+}
+
+/* ── OPTION BUTTONS ── */
+.tg-options-label{
+  font-size:11px;font-weight:800;color:#aaa;
+  letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:10px;
+}
+.tg-options-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
+}
+@media(max-width:480px){.tg-options-grid{grid-template-columns:1fr;}}
+
+.tg-opt-btn{
+  display:flex;align-items:flex-start;gap:10px;
+  background:#f9f9ff;
+  border:2.5px solid #e8e8f0;
+  border-radius:16px;
+  padding:12px 14px;
+  cursor:pointer;
+  font-family:'Nunito',sans-serif;
+  font-size:14px;font-weight:700;
+  color:#444;
+  line-height:1.4;
+  text-align:left;
+  transition:all .2s cubic-bezier(.36,2,.6,1);
+}
+.tg-opt-btn:hover:not(:disabled){
+  background:#fff0f3;
+  border-color:#ff6b81;
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(255,71,87,.15);
+}
+.tg-opt-btn.selected{
+  border-color:#ff4757;
+  background:#fff0f3;
+  box-shadow:0 0 0 3px rgba(255,71,87,.12);
+}
+.tg-opt-btn.correct{
+  border-color:#22c55e!important;
+  background:rgba(34,197,94,.08)!important;
+  color:#166534;
+  animation:tgPulseGreen .4s ease;
+}
+.tg-opt-btn.wrong{
+  border-color:#ef4444!important;
+  background:rgba(239,68,68,.07)!important;
+  color:#991b1b;
+  animation:tgShake .4s ease;
+}
+.tg-opt-btn.show-correct{
+  border-color:rgba(34,197,94,.6)!important;
+  background:rgba(34,197,94,.06)!important;
+  color:#166534;
+}
+.tg-opt-btn:disabled{cursor:default;transform:none!important;}
+@keyframes tgPulseGreen{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}100%{box-shadow:0 0 0 10px rgba(34,197,94,0)}}
+@keyframes tgShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+.tg-opt-letter{
+  width:26px;height:26px;border-radius:8px;flex-shrink:0;
+  background:rgba(255,71,87,.08);
+  border:1.5px solid rgba(255,71,87,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;color:#ff4757;
+  transition:all .2s;
+}
+.tg-opt-btn:hover:not(:disabled) .tg-opt-letter{background:rgba(255,71,87,.15);}
+.tg-opt-btn.selected .tg-opt-letter{background:#ff4757;color:#fff;border-color:#ff4757;}
+.tg-opt-btn.correct .tg-opt-letter{background:#22c55e;color:#fff;border-color:#22c55e;}
+.tg-opt-btn.wrong .tg-opt-letter{background:#ef4444;color:#fff;border-color:#ef4444;}
+.tg-opt-btn.show-correct .tg-opt-letter{background:rgba(34,197,94,.2);color:#166534;border-color:#22c55e;}
+
+.tg-check-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#ff6b81,#ff4757);
+  border:none;border-radius:16px;
+  font-family:'Bubblegum Sans',cursive;
+  font-size:18px;color:#fff;cursor:pointer;
+  box-shadow:0 4px 0 #c62828;
+  transition:all .2s;letter-spacing:1px;
+  margin-bottom:10px;
+}
+.tg-check-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #c62828;}
+.tg-check-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #c62828;}
+.tg-check-btn:disabled{opacity:.5;cursor:default;transform:none;}
+
+.tg-next-btn{
+  width:100%;padding:12px;
+  background:#fff;
+  border:2.5px solid #ff6b81;border-radius:16px;
+  font-family:'Bubblegum Sans',cursive;
+  font-size:16px;color:#ff4757;cursor:pointer;
+  transition:all .2s;letter-spacing:.5px;
+  display:none;
+}
+.tg-next-btn:hover{background:#fff0f3;}
+
+/* Feedback */
+.tg-feedback{
+  display:none;
+  border-radius:16px;
+  padding:14px 16px;
+  margin-bottom:14px;
+  animation:fadeInUp .3s ease;
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tg-fb-correct{background:#f0fdf4;border:2px solid #86efac;color:#166534;}
+.tg-fb-wrong{background:#fff1f2;border:2px solid #fda4af;color:#9f1239;}
+.tg-fb-title{font-size:15px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.tg-fb-detail{font-size:13px;color:#555;line-height:1.5;}
+.tg-fb-answer{font-weight:800;color:#ff4757;}
+
+/* RESULT */
+#tgResult{
+  display:none;
+  text-align:center;
+  padding:30px 20px 60px;
+  position:relative;z-index:10;
+}
+.tg-result-train{
+  font-size:50px;
+  margin-bottom:16px;
+  animation:resultBounce .8s cubic-bezier(.36,2,.6,1);
+  display:block;
+}
+@keyframes resultBounce{0%{transform:scale(0) rotate(-10deg)}80%{transform:scale(1.1) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+.tg-result-title{
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(26px,6vw,40px);
+  color:#ff4757;
+  text-shadow:3px 3px 0 rgba(255,71,87,.2);
+  margin-bottom:6px;
+}
+.tg-result-score{
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(50px,12vw,72px);
+  color:#ff4757;
+  text-shadow:4px 4px 0 rgba(255,71,87,.2);
+  line-height:1;
+}
+.tg-result-sub{font-size:15px;color:#888;font-weight:700;margin:6px 0 20px;}
+
+.tg-cars-result{
+  display:flex;justify-content:center;gap:8px;
+  margin:16px 0;
+  flex-wrap:wrap;
+}
+.tg-car-result{
+  border-radius:14px 14px 0 0;
+  padding:10px 14px;
+  font-size:18px;
+  font-weight:800;
+  color:#fff;
+  border:3px solid rgba(0,0,0,.1);
+  box-shadow:0 4px 0 rgba(0,0,0,.15);
+  position:relative;
+}
+.tg-car-result::after{
+  content:'● ●';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);
+  font-size:8px;color:#444;letter-spacing:10px;
+}
+.tg-car-result.correct{filter:brightness(1);}
+.tg-car-result.wrong{filter:grayscale(.7) brightness(.7);}
+
+.tg-grade{
+  display:inline-block;padding:8px 28px;
+  border-radius:40px;font-family:'Bubblegum Sans',cursive;
+  font-size:18px;margin-bottom:12px;
+  animation:gradePop .5s cubic-bezier(.36,2,.6,1) .3s both;
+}
+@keyframes gradePop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.tg-grade-a{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#7c3a00;box-shadow:0 4px 0 #e67e00;}
+.tg-grade-b{background:linear-gradient(135deg,#a0c4ff,#6ea8fe);color:#003d99;box-shadow:0 4px 0 #0056e0;}
+.tg-grade-c{background:linear-gradient(135deg,#ffa07a,#ff7043);color:#7c1a00;box-shadow:0 4px 0 #e64a19;}
+
+.tg-msg{font-size:14px;color:#555;font-weight:700;margin-bottom:24px;}
+
+.tg-restart-btn{
+  background:linear-gradient(135deg,#ff6b81,#ff4757);
+  border:none;border-radius:60px;
+  padding:14px 44px;
+  font-family:'Bubblegum Sans',cursive;
+  font-size:20px;color:#fff;cursor:pointer;
+  box-shadow:0 5px 0 #c62828;
+  transition:all .2s;
+  margin-right:10px;
+}
+.tg-restart-btn:hover{transform:translateY(-3px);box-shadow:0 8px 0 #c62828;}
+
+/* ================================================================
+   ██████████  GOLD MINE GAME SCREEN  ██████████
+================================================================ */
+#goldGame{
+  background:var(--brown-bg);
+  min-height:100vh;
+}
+.gm-nav{
+  position:relative;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px 10px;
+  background:rgba(255,215,0,.06);
+  border-bottom:1px solid rgba(255,215,0,.15);
+}
+.gm-back{
+  background:rgba(255,215,0,.1);border:1.5px solid rgba(255,215,0,.3);
+  border-radius:50px;padding:7px 16px;
+  font-size:13px;font-weight:700;color:var(--gold);
+  cursor:pointer;font-family:'Nunito',sans-serif;
+  transition:all .2s;
+}
+.gm-back:hover{background:rgba(255,215,0,.18);}
+.gm-nav-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(14px,3vw,20px);
+  background:linear-gradient(135deg,#ffd700,#ff8c00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  font-weight:900;
+}
+
+/* Gold game inner wrapper */
+#goldGame .bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 20% 20%,#2d1800 0%,#1a0e00 55%,#0d0700 100%);}
+#goldGame .bg-stars{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+#goldGame .bg-stars::before{content:'';position:absolute;width:2px;height:2px;background:var(--gold);border-radius:50%;box-shadow:80px 40px 0 #ffd700,200px 80px 0 #ffaa00,340px 30px 0 #ffd700,500px 60px 0 #ffaa00,620px 20px 0 #ffd700,150px 150px 0 #ffc000,400px 120px 0 #ffd700,560px 100px 0 #ffaa00,700px 50px 0 #ffc000,50px 200px 0 #ffd700,250px 220px 0 #ffaa00,450px 190px 0 #ffd700,320px 260px 0 #ffc000,640px 180px 0 #ffd700,760px 140px 0 #ffaa00;animation:twinkle 3s infinite alternate;}
+@keyframes twinkle{0%{opacity:.3}100%{opacity:1}}
+#goldGame .bg-ground{position:fixed;bottom:0;left:0;width:100%;height:30%;z-index:2;pointer-events:none;background:linear-gradient(to top,#2d1a00,#3d2400,transparent);}
+#goldGame #app{position:relative;z-index:10;max-width:820px;margin:0 auto;padding:20px 16px 60px;}
+/* Full gold mine CSS injected below */
+</style>
 </head>
 <body>
 
-<div id="loader">
-    <div class="spinner"></div>
-    <p id="load-text" style="margin-top: 20px; font-family: 'Orbitron'; letter-spacing: 3px; color: var(--cyan);">INITIALIZING DATABASE...</p>
+<!-- ================================================================
+     LAUNCHER SCREEN
+================================================================ -->
+<div id="launcher" class="screen active">
+  <!-- Animated clouds -->
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+  <div class="cloud c4"></div>
+
+  <!-- Header -->
+  <div class="launcher-header">
+    <div class="launcher-title">🎮 English Games</div>
+    <div class="launcher-sub">Học tiếng Anh qua trò chơi vui!</div>
+    <div class="stars-deco">
+      <span class="star">⭐</span>
+      <span class="star">🌟</span>
+      <span class="star">⭐</span>
+    </div>
+  </div>
+
+  <!-- Game cards -->
+  <div class="cards-container">
+
+    <!-- Train Game Card -->
+    <div class="game-card card-train" onclick="showTrainGame()">
+      <span class="card-emoji">🚂</span>
+      <div class="card-title">🚂 Toa Tàu Gia Đình</div>
+      <div class="card-desc">
+        Điền câu hoàn chỉnh về bạn và gia đình lúc 7 giờ tối hôm qua. Mỗi toa tàu là một thành viên!
+      </div>
+      <div class="card-tags">
+        <span class="tag">Past Simple</span>
+        <span class="tag">5 Câu hỏi</span>
+        <span class="tag">Dễ thương</span>
+      </div>
+      <button class="play-btn">🚀 Bắt Đầu Chơi!</button>
+    </div>
+
+    <!-- Gold Mine Card -->
+    <div class="game-card card-gold" onclick="showGoldGame()">
+      <span class="card-emoji">⛏️</span>
+      <div class="card-title">⛏️ Gold Mine English</div>
+      <div class="card-desc">
+        Đào vàng bằng cách trả lời đúng các câu hỏi về thì Quá khứ đơn và Quá khứ tiếp diễn!
+      </div>
+      <div class="card-tags">
+        <span class="tag">Past Simple</span>
+        <span class="tag">Past Continuous</span>
+        <span class="tag">5 Câu hỏi</span>
+      </div>
+      <button class="play-btn">⛏️ Đào Vàng!</button>
+    </div>
+
+  </div>
+
+  <!-- Decorative ground + rail -->
+  <div class="launcher-ground"></div>
+  <div class="launcher-rail"></div>
+
+  <!-- Animated mini train -->
+  <div class="launcher-train">
+    <div class="lt-loco"><span class="lt-smoke">💨</span></div>
+    <div class="lt-car lt-c1"></div>
+    <div class="lt-car lt-c2"></div>
+    <div class="lt-car lt-c3"></div>
+  </div>
 </div>
 
-<div id="app">
-    <div id="intro-screen" class="screen active">
-        <div style="font-size: 80px; margin-bottom: 10px;">🦈</div>
-        <h1 style="font-family: 'Orbitron'; color: var(--cyan); font-size: 35px; margin: 0;">SHARK.OS v2.0</h1>
-        <p style="opacity: 0.6; margin-bottom: 30px;">Hệ thống đã nạp 100 câu hỏi Ngữ pháp B2/C1.</p>
-        <button class="btn-api" onclick="startGame()">START MISSION</button>
+<!-- ================================================================
+     TRAIN GAME SCREEN
+================================================================ -->
+<div id="trainGame" class="screen">
+
+  <div class="tg-sun"></div>
+  <div class="tg-cloud tgc1"><div class="cc"></div></div>
+  <div class="tg-cloud tgc2"><div class="cc"></div></div>
+  <span class="tg-tree">🌳</span>
+  <span class="tg-tree">🌲</span>
+  <span class="tg-tree" style="right:3%">🌳</span>
+  <span class="tg-tree" style="right:10%">🌲</span>
+
+  <!-- Nav -->
+  <div class="tg-nav">
+    <button class="tg-back" onclick="backToLauncher()">← Quay lại</button>
+    <div class="tg-nav-title">🚂 Toa Tàu Gia Đình</div>
+    <div class="tg-score-pill">⭐ <span id="tgScoreDisplay">0</span></div>
+  </div>
+
+  <!-- Start Screen -->
+  <div id="tgStart">
+    <div class="tg-start-title">🚂 Toa Tàu Gia Đình</div>
+    <div class="tg-scenario">📍 Lúc 7 giờ tối hôm qua...</div>
+    <div class="tg-start-sub">Điền câu theo từng toa tàu dễ thương!</div>
+
+    <div class="tg-preview-train">
+      <div class="tg-car-preview tc-loco">🚂</div>
+      <div class="tg-car-preview tc-1">👤 I</div>
+      <div class="tg-car-preview tc-2">👴 Bà/Ông</div>
+      <div class="tg-car-preview tc-3">👩 Mẹ</div>
+      <div class="tg-car-preview tc-4">👨 Bố</div>
+      <div class="tg-car-preview tc-5">👧 Em</div>
     </div>
 
-    <div id="game-screen" class="screen">
-        <div class="hud">
-            <span>SECTOR: <span id="q-count">0/5</span></span>
-            <span>INTEL-XP: <span id="score">0</span></span>
+    <button class="tg-start-btn" onclick="startTrainGame()">🚀 Khởi Hành!</button>
+  </div>
+
+  <!-- Game Area -->
+  <div id="tgGame">
+    <!-- Journey Progress -->
+    <div class="tg-journey">
+      <div class="tg-journey-label">🛤️ Hành trình</div>
+      <div class="tg-rail-row">
+        <div class="tg-loco-node">🚂</div>
+        <div class="tg-rail-line"><div class="tg-rail-done" id="tgRailDone" style="width:0%"></div></div>
+        <div class="tg-stop upcoming" id="st0">
+          <div class="tg-stop-circle">👤</div>
+          <div class="tg-stop-label">Tôi</div>
         </div>
-        <div class="api-card">
-            <div id="question-text" class="q-text"></div>
-            <div id="options-container"></div>
-            <div id="feedback" style="height: 25px; margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
-            <button id="next-btn" class="btn-api" style="display:none;" onclick="handleNext()">CONTINUE TRACKING</button>
+        <div class="tg-stop upcoming" id="st1">
+          <div class="tg-stop-circle">👴</div>
+          <div class="tg-stop-label">Bà/Ông</div>
         </div>
+        <div class="tg-stop upcoming" id="st2">
+          <div class="tg-stop-circle">👩</div>
+          <div class="tg-stop-label">Mẹ</div>
+        </div>
+        <div class="tg-stop upcoming" id="st3">
+          <div class="tg-stop-circle">👨</div>
+          <div class="tg-stop-label">Bố</div>
+        </div>
+        <div class="tg-stop upcoming" id="st4">
+          <div class="tg-stop-circle">👧</div>
+          <div class="tg-stop-label">Em/Anh</div>
+        </div>
+      </div>
     </div>
 
-    <div id="result-screen" class="screen">
-        <div class="api-card">
-            <h1 id="rank" style="font-family: 'Orbitron'; font-size: 40px; color: var(--gold);">RANK: ...</h1>
-            <p id="final-stats" style="font-size: 20px;"></p>
-            <button class="btn-api" onclick="location.reload()">REBOOT SYSTEM</button>
-        </div>
+    <!-- Question Card -->
+    <div class="tg-question-card" id="tgQuestionCard">
+      <div id="tgCarIndicator" class="tg-car-indicator"></div>
+      <div class="tg-q-sentence" id="tgSentence"></div>
+      <div class="tg-q-hint" id="tgHint"></div>
+      <div class="tg-options-label">Chọn đáp án đúng</div>
+      <div class="tg-options-grid" id="tgOptionsGrid"></div>
+      <div class="tg-feedback" id="tgFeedback"></div>
+      <button class="tg-check-btn" id="tgCheckBtn" onclick="checkTgAnswer()">🚂 Kiểm Tra!</button>
+      <button class="tg-next-btn" id="tgNextBtn" onclick="nextTgQuestion()">Toa tiếp theo →</button>
     </div>
+  </div>
+
+  <!-- Result -->
+  <div id="tgResult">
+    <span class="tg-result-train" id="tgResultEmoji">🏆</span>
+    <div class="tg-result-title">Chuyến tàu hoàn thành!</div>
+    <div class="tg-result-score" id="tgResultScore">0</div>
+    <div class="tg-result-sub" id="tgResultSub">5/5 câu đúng</div>
+    <div class="tg-cars-result" id="tgCarsResult"></div>
+    <div class="tg-grade" id="tgGrade">🥇 Xuất Sắc!</div>
+    <div class="tg-msg" id="tgMsg">Bạn trả lời tất cả đúng!</div>
+    <button class="tg-restart-btn" onclick="restartTrainGame()">🔄 Chơi lại!</button>
+  </div>
 </div>
+
+<!-- ================================================================
+     GOLD MINE GAME SCREEN
+================================================================ -->
+<div id="goldGame" class="screen">
+
+  <div class="bg-layer"></div>
+  <div class="bg-stars"></div>
+  <div class="bg-ground"></div>
+  <div id="particles"></div>
+
+  <div class="gm-nav">
+    <button class="gm-back" onclick="backToLauncher()">← Quay lại</button>
+    <div class="gm-nav-title">⛏️ GOLD MINE ENGLISH</div>
+    <div style="width:80px"></div>
+  </div>
+
+  <div id="app">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-icons">
+        <span class="pickaxe">⛏️</span>
+        <div>
+          <div class="game-title">GOLD MINE ENGLISH</div>
+          <div class="game-subtitle">Past Tenses Challenge</div>
+        </div>
+        <span class="pickaxe">💎</span>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-stat">
+        <div class="hud-label">Điểm</div>
+        <div class="hud-value" id="score-display">0</div>
+      </div>
+      <div class="hud-center">
+        <div class="gold-bars" id="gold-bars">
+          <div class="gold-bar" id="bar0"></div>
+          <div class="gold-bar" id="bar1"></div>
+          <div class="gold-bar" id="bar2"></div>
+          <div class="gold-bar" id="bar3"></div>
+          <div class="gold-bar" id="bar4"></div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="hud-stat">
+        <div class="hud-label">Câu</div>
+        <div class="hud-value"><span id="q-num">1</span><span style="font-size:14px;color:var(--text-dim);">/5</span></div>
+      </div>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="tense-legend">
+      <div class="legend-item"><div class="dot dot-simple"></div> Past Simple (Quá khứ đơn)</div>
+      <div class="legend-item"><div class="dot dot-continuous"></div> Past Continuous (Quá khứ tiếp diễn)</div>
+    </div>
+
+    <!-- QUESTION AREA -->
+    <div id="question-area"></div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="result-screen"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     GOLD MINE STYLES (embedded)
+================================================================ -->
+<style>
+/* Gold Mine full styles */
+.header{text-align:center;padding:24px 0 12px;}
+.header-icons{display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:8px;}
+.pickaxe{font-size:36px;display:inline-block;filter:drop-shadow(0 0 10px var(--gold));animation:swing 2s ease-in-out infinite;}
+.pickaxe:last-child{animation-delay:1s;}
+@keyframes swing{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(20deg)}}
+.game-title{font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,48px);font-weight:900;background:linear-gradient(135deg,#ffd700,#ffaa00,#ff8c00,#ffd700);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite;line-height:1.1;}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+.game-subtitle{color:var(--text-muted);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-top:6px;font-weight:500;}
+.hud{display:flex;align-items:center;justify-content:space-between;background:rgba(255,215,0,.07);border:1px solid var(--border);border-radius:16px;padding:14px 20px;margin:14px 0 10px;gap:12px;}
+.hud-stat{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.hud-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;font-weight:500;}
+.hud-value{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold);line-height:1;}
+.hud-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.gold-bars{display:flex;gap:6px;}
+.gold-bar{width:32px;height:20px;border-radius:5px;background:#333;border:1px solid #222;transition:all .45s ease;position:relative;overflow:hidden;}
+.gold-bar.earned{background:linear-gradient(135deg,#ffd700,#ffaa00,#ff8c00);border-color:#ff8c00;box-shadow:0 0 10px rgba(255,215,0,.6);}
+.gold-bar.earned::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.3),transparent);}
+.progress-track{width:100%;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#ff8c00);border-radius:4px;transition:width .5s ease;box-shadow:0 0 8px rgba(255,215,0,.5);}
+.tense-legend{display:flex;gap:18px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:#c49a3a;font-weight:500;}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dot-simple{background:var(--blue-light);}
+.dot-continuous{background:var(--purple-light);}
+.q-card{background:var(--card-bg);border:1.5px solid var(--border);border-radius:22px;padding:28px 26px 24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,215,0,.12);animation:slideUp .35s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.q-card::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;height:3px;background:linear-gradient(90deg,transparent,var(--gold),#ff8c00,var(--gold),transparent);opacity:.6;}
+.q-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.35);border-radius:30px;padding:5px 14px 5px 8px;margin-bottom:14px;}
+.q-badge-gem{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#ff8c00);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1a0e00;}
+.q-badge-text{font-size:11px;color:var(--gold-mid);letter-spacing:1px;font-weight:600;}
+.tense-tag{display:inline-block;padding:4px 13px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
+.tag-simple{background:rgba(125,211,252,.12);border:1.5px solid rgba(125,211,252,.4);color:var(--blue-light);}
+.tag-continuous{background:rgba(216,180,254,.12);border:1.5px solid rgba(216,180,254,.4);color:var(--purple-light);}
+.tag-both{background:rgba(255,215,0,.09);border:1.5px solid rgba(255,215,0,.35);color:var(--gold);}
+.q-text{font-family:'Playfair Display',serif;font-size:clamp(17px,3.5vw,22px);color:var(--text-main);font-weight:700;line-height:1.5;margin-bottom:10px;}
+.q-hint{font-size:13px;color:#b89050;font-style:italic;margin-bottom:20px;padding:8px 12px;background:rgba(255,215,0,.06);border-left:2px solid rgba(255,215,0,.35);border-radius:0 6px 6px 0;}
+.options-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9a7a45;font-weight:600;margin-bottom:10px;}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+@media(max-width:500px){.options-grid{grid-template-columns:1fr;}}
+.option-btn{background:rgba(255,215,0,.05);border:1.5px solid rgba(255,215,0,.2);border-radius:13px;padding:13px 16px;text-align:left;cursor:pointer;transition:all .22s ease;display:flex;align-items:flex-start;gap:10px;font-family:'DM Sans','Nunito',sans-serif;color:var(--text-main);font-size:15px;line-height:1.4;position:relative;overflow:hidden;}
+.option-btn:hover:not(:disabled){background:rgba(255,215,0,.13);border-color:rgba(255,215,0,.55);transform:translateY(-2px);box-shadow:0 4px 16px rgba(255,215,0,.18);}
+.option-btn.selected{border-color:rgba(255,215,0,.7);background:rgba(255,215,0,.12);}
+.option-btn.correct{border-color:var(--green)!important;background:rgba(34,197,94,.14)!important;color:#86efac;animation:pulse-green .4s ease;}
+.option-btn.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.1)!important;color:#fca5a5;animation:shake .4s ease;}
+.option-btn.show-correct{border-color:rgba(34,197,94,.6)!important;background:rgba(34,197,94,.07)!important;color:#86efac;}
+.option-btn:disabled{cursor:default;transform:none!important;}
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}100%{box-shadow:0 0 0 12px rgba(34,197,94,0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.opt-letter{width:26px;height:26px;border-radius:8px;flex-shrink:0;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#c49a3a;transition:all .22s;}
+.option-btn:hover:not(:disabled) .opt-letter{background:rgba(255,215,0,.2);color:var(--gold);border-color:rgba(255,215,0,.5);}
+.option-btn.correct .opt-letter{background:rgba(34,197,94,.25);color:#86efac;border-color:rgba(34,197,94,.5);}
+.option-btn.wrong .opt-letter{background:rgba(239,68,68,.2);color:#fca5a5;border-color:rgba(239,68,68,.4);}
+.option-btn.show-correct .opt-letter{background:rgba(34,197,94,.15);color:#86efac;border-color:rgba(34,197,94,.3);}
+.feedback{border-radius:13px;padding:14px 18px;font-size:14px;line-height:1.65;display:none;animation:fadeIn .3s ease;margin-bottom:18px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.feedback.fb-correct{background:rgba(34,197,94,.09);border:1px solid rgba(34,197,94,.3);color:#a7f3d0;}
+.feedback.fb-wrong{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);color:#fecaca;}
+.fb-title{font-size:16px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.fb-en{margin-bottom:6px;color:#fbbf24;font-style:italic;}
+.fb-vi{font-size:13px;color:#fde68a;background:rgba(255,215,0,.06);padding:7px 11px;border-radius:8px;margin-top:6px;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-primary{flex:1;min-width:140px;background:linear-gradient(135deg,var(--gold-mid),var(--gold-dark));border:none;border-radius:13px;padding:13px 20px;font-size:15px;font-weight:600;color:#fef3c7;cursor:pointer;transition:all .25s;font-family:'Nunito',sans-serif;letter-spacing:.5px;box-shadow:0 4px 20px rgba(217,119,6,.35);}
+.btn-primary:hover:not(:disabled){background:linear-gradient(135deg,var(--gold),var(--gold-mid));transform:translateY(-2px);box-shadow:0 6px 24px rgba(245,158,11,.5);}
+.btn-primary:disabled{opacity:.5;cursor:default;}
+.btn-secondary{padding:13px 22px;background:transparent;border:1.5px solid rgba(255,215,0,.35);border-radius:13px;font-size:15px;font-weight:500;color:var(--gold);cursor:pointer;transition:all .25s;font-family:'Nunito',sans-serif;display:none;}
+.btn-secondary:hover{background:rgba(255,215,0,.09);border-color:var(--gold);}
+.result-screen{display:none;text-align:center;padding:36px 16px;animation:fadeIn .5s ease;}
+.trophy{font-size:80px;display:block;filter:drop-shadow(0 0 20px var(--gold));animation:bounce 1s ease infinite alternate;}
+@keyframes bounce{0%{transform:translateY(0) scale(1)}100%{transform:translateY(-12px) scale(1.06)}}
+.result-title{font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,40px);font-weight:900;color:var(--gold);margin:18px 0 8px;line-height:1.1;}
+.result-score{font-family:'Playfair Display',serif;font-size:68px;font-weight:700;color:#fff;text-shadow:0 0 30px rgba(255,215,0,.5);line-height:1;}
+.result-score span{font-size:22px;color:var(--text-dim);}
+.result-msg{color:#c49a3a;font-size:14px;margin:8px 0 20px;}
+.grade-badge{display:inline-block;padding:7px 26px;border-radius:30px;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;}
+.grade-gold{background:rgba(255,215,0,.13);border:1.5px solid var(--gold);color:var(--gold);box-shadow:0 0 18px rgba(255,215,0,.3);}
+.grade-silver{background:rgba(200,200,200,.09);border:1.5px solid #a0a0a0;color:#d4d4d4;}
+.grade-bronze{background:rgba(205,127,50,.1);border:1.5px solid #cd7f32;color:#cd7f32;}
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:20px 0 10px;}
+.summary-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:12px 6px;text-align:center;font-size:11px;color:#9a7a45;}
+.summary-item.s-correct{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:#86efac;}
+.summary-item.s-wrong{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.25);color:#fca5a5;}
+.summary-q{font-size:18px;font-weight:700;font-family:'Playfair Display',serif;color:inherit;margin-bottom:3px;}
+.btn-restart{background:linear-gradient(135deg,var(--gold-mid),var(--gold-dark));border:none;border-radius:50px;padding:14px 40px;font-size:16px;font-weight:700;color:#fef3c7;cursor:pointer;transition:all .25s;font-family:'Nunito',sans-serif;box-shadow:0 4px 20px rgba(217,119,6,.4);}
+.btn-restart:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(245,158,11,.5);}
+.particle{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:999;animation:pfloat 1.5s ease-out forwards;}
+@keyframes pfloat{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+.divider{display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0 14px;font-size:11px;color:var(--text-dim);letter-spacing:1px;}
+.divider-dot{width:4px;height:4px;border-radius:50%;background:var(--text-dim);}
+</style>
 
 <script>
-    // DATA DATABASE 100 CÂU "KHÓ"
-    const db = [
-        { q: "By the time the shark ___ the cage, the divers had already escaped.", opts: ["reached", "had reached", "was reaching", "reaches"], ans: 0, exp: "By the time + QK Đơn, QK Hoàn thành." },
-        { q: "The marine biologist ___ the specimen when the alarm went off.", opts: ["studied", "was studying", "had studied", "studies"], ans: 1, exp: "Hành động đang diễn ra (was studying) thì bị xen ngang." },
-        { q: "Hardly ___ the submarine dived when it hit an unknown object.", opts: ["did", "was", "had", "has"], ans: 2, exp: "Cấu trúc đảo ngữ: Hardly had + S + V3." },
-        { q: "I wish I ___ more about shark behavior before this expedition.", opts: ["knew", "had known", "was knowing", "have known"], ans: 1, exp: "Ước cho quá khứ: dùng Past Perfect." },
-        { q: "At this time yesterday, we ___ through the Great Barrier Reef.", opts: ["dove", "were diving", "had dived", "have dove"], ans: 1, exp: "Thời điểm xác định trong quá khứ." },
-        { q: "The ship ___ for ten days before they finally spotted land.", opts: ["sailed", "was sailing", "had been sailing", "is sailing"], ans: 2, exp: "Nhấn mạnh tính liên tục trước 1 mốc quá khứ." }
-    ];
+/* ================================================================
+   SCREEN NAVIGATION
+================================================================ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function backToLauncher(){showScreen('launcher');}
+function showTrainGame(){showScreen('trainGame');}
+function showGoldGame(){
+  showScreen('goldGame');
+  // Re-init gold game if needed
+  if(!gmInitialized){initGoldMine();}
+}
 
-    // Tạo thêm các câu hỏi ngữ cảnh khác để đủ 100 câu
-    for(let i=db.length; i<100; i++) {
-        db.push({
-            q: `(Sector-${i}) The team realized they ___ the wrong coordinates after two hours of searching.`,
-            opts: ["inputted", "had inputted", "were inputting", "have inputted"],
-            ans: 1,
-            exp: "Sự việc xảy ra trước (inputted) một sự việc quá khứ khác (realized)."
-        });
-    }
+/* ================================================================
+   🚂 TRAIN GAME
+================================================================ */
+const trainQuestions=[
+  {
+    id:1,
+    car:'👤 Tôi',carClass:'tc-1',carColor:'#ff7043',emoji:'👤',
+    sentence:'🚂 At 7 p.m. yesterday, <strong>I</strong> ___ dinner with my family.',
+    hint:'💡 "At 7 p.m. yesterday" → hành động đang diễn ra → Past Continuous',
+    options:[
+      {label:'A',text:'eat — hiện tại'},
+      {label:'B',text:'was eating — đang ăn ✓',correct:true},
+      {label:'C',text:'eated — sai động từ'},
+      {label:'D',text:'eating — thiếu trợ động từ'},
+    ],
+    answer:'B',
+    fullSentence:'I was eating dinner with my family.',
+    explain:'Dùng <b>was eating</b> (Past Continuous) vì lúc 7 giờ tối hành động đang diễn ra.',
+  },
+  {
+    id:2,
+    car:'👴 Bà/Ông',carClass:'tc-2',carColor:'#0288d1',emoji:'👴',
+    sentence:'🚂 At 7 p.m. yesterday, <strong>my grandmother</strong> ___ her favourite TV show.',
+    hint:'💡 Subject "she" (singular) → was + V-ing',
+    options:[
+      {label:'A',text:'watched — Past Simple'},
+      {label:'B',text:'were watching — sai chủ ngữ số ít'},
+      {label:'C',text:'was watching — đang xem ✓',correct:true},
+      {label:'D',text:'is watching — thì hiện tại'},
+    ],
+    answer:'C',
+    fullSentence:'My grandmother was watching her favourite TV show.',
+    explain:'Chủ ngữ "my grandmother" = she (số ít) → dùng <b>was watching</b>.',
+  },
+  {
+    id:3,
+    car:'👩 Mẹ',carClass:'tc-3',carColor:'#388e3c',emoji:'👩',
+    sentence:'🚂 At 7 p.m. yesterday, <strong>my mother</strong> ___ a delicious meal in the kitchen.',
+    hint:'💡 Hành động đang xảy ra tại 1 thời điểm cụ thể trong quá khứ',
+    options:[
+      {label:'A',text:'cooks — thì hiện tại'},
+      {label:'B',text:'was cooking — đang nấu ✓',correct:true},
+      {label:'C',text:'cooked — Past Simple'},
+      {label:'D',text:'were cooking — sai số'},
+    ],
+    answer:'B',
+    fullSentence:'My mother was cooking a delicious meal in the kitchen.',
+    explain:'<b>was cooking</b> = Past Continuous, mô tả hành động đang diễn ra lúc 7 giờ.',
+  },
+  {
+    id:4,
+    car:'👨 Bố',carClass:'tc-4',carColor:'#f9a825',emoji:'👨',
+    sentence:'🚂 At 7 p.m. yesterday, <strong>my father</strong> ___ a book in the living room.',
+    hint:'💡 "At 7 p.m." là mốc thời gian → dùng Past Continuous',
+    options:[
+      {label:'A',text:'was reading — đang đọc ✓',correct:true},
+      {label:'B',text:'read — Past Simple'},
+      {label:'C',text:'were reading — sai số'},
+      {label:'D',text:'has read — thì hoàn thành'},
+    ],
+    answer:'A',
+    fullSentence:'My father was reading a book in the living room.',
+    explain:'<b>was reading</b> (Past Continuous) đúng vì "at 7 p.m." → thời điểm cụ thể.',
+  },
+  {
+    id:5,
+    car:'👧 Em/Anh/Chị',carClass:'tc-5',carColor:'#7b1fa2',emoji:'👧',
+    sentence:'🚂 At 7 p.m. yesterday, <strong>my sister</strong> ___ her homework at her desk.',
+    hint:'💡 Cùng thời điểm 7 giờ tối, hành động đang tiến hành',
+    options:[
+      {label:'A',text:'did — Past Simple'},
+      {label:'B',text:'does — thì hiện tại'},
+      {label:'C',text:'were doing — sai số'},
+      {label:'D',text:'was doing — đang làm ✓',correct:true},
+    ],
+    answer:'D',
+    fullSentence:'My sister was doing her homework at her desk.',
+    explain:'<b>was doing</b> = Past Continuous, số ít "my sister" → was.',
+  },
+];
 
-    let sessionQuestions = [];
-    let currentIdx = 0;
-    let score = 0;
-    let answered = false;
+let tgCurrent=0,tgScore=0,tgResults=[],tgAnswered=false,tgSelected=null;
 
-    // Giả lập Fetch dữ liệu cực nhanh
-    window.onload = () => {
-        setTimeout(() => {
-            document.getElementById('load-text').innerText = "CONNECTION ESTABLISHED!";
-            document.getElementById('load-text').style.color = "#00ff88";
-            setTimeout(() => {
-                document.getElementById('loader').style.display = 'none';
-            }, 800);
-        }, 1500);
-    };
+function startTrainGame(){
+  document.getElementById('tgStart').style.display='none';
+  document.getElementById('tgGame').style.display='block';
+  renderTgQuestion();
+}
 
-    function startGame() {
-        // Shuffle lấy 5 câu ngẫu nhiên
-        sessionQuestions = [...db].sort(() => Math.random() - 0.5).slice(0, 5);
-        showScreen('game-screen');
-        render();
-    }
+function updateTgTrack(){
+  // rail fill: each stop = 25% gap between 5 stops; before st0 = 0%, after st4 = 100%
+  const pct=tgCurrent===0?0:tgCurrent===5?100:((tgCurrent)/5*100);
+  document.getElementById('tgRailDone').style.width=pct+'%';
+  for(let i=0;i<5;i++){
+    const el=document.getElementById('st'+i);
+    el.className='tg-stop';
+    if(i<tgCurrent) el.classList.add('done');
+    else if(i===tgCurrent) el.classList.add('active');
+    else el.classList.add('upcoming');
+  }
+}
 
-    function render() {
-        answered = false;
-        const data = sessionQuestions[currentIdx];
-        document.getElementById('q-count').innerText = `${currentIdx + 1}/5`;
-        document.getElementById('question-text').innerText = data.q;
-        document.getElementById('feedback').innerText = "";
-        document.getElementById('next-btn').style.display = "none";
-        
-        const container = document.getElementById('options-container');
-        container.innerHTML = "";
-        
-        data.opts.forEach((o, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'opt-item';
-            btn.innerText = o;
-            btn.onclick = () => check(i);
-            container.appendChild(btn);
-        });
-    }
+function renderTgQuestion(){
+  tgAnswered=false;tgSelected=null;
+  const q=trainQuestions[tgCurrent];
+  updateTgTrack();
 
-    function check(i) {
-        if(answered) return;
-        answered = true;
-        const data = sessionQuestions[currentIdx];
-        const btns = document.querySelectorAll('.opt-item');
-        const fb = document.getElementById('feedback');
+  const ind=document.getElementById('tgCarIndicator');
+  ind.textContent=q.car+' — Câu '+q.id+'/5';
+  ind.style.background=q.carColor+'20';
+  ind.style.border='2px solid '+q.carColor+'55';
+  ind.style.color=q.carColor;
 
-        if(i === data.ans) {
-            btns[i].classList.add('correct');
-            score += 20;
-            fb.innerText = "SUCCESS: DATA SECURED";
-            fb.style.color = "#00ff88";
-        } else {
-            btns[i].classList.add('wrong');
-            btns[data.ans].classList.add('correct');
-            fb.innerText = "ERROR: " + data.exp;
-            fb.style.color = "var(--red)";
-        }
-        document.getElementById('next-btn').style.display = "block";
-    }
+  document.getElementById('tgSentence').innerHTML=q.sentence;
+  document.getElementById('tgHint').textContent=q.hint;
+  document.getElementById('tgFeedback').style.display='none';
+  document.getElementById('tgCheckBtn').disabled=false;
+  document.getElementById('tgNextBtn').style.display='none';
 
-    function handleNext() {
-        currentIdx++;
-        if(currentIdx < 5) render();
-        else showResult();
-    }
+  const grid=document.getElementById('tgOptionsGrid');
+  grid.innerHTML=q.options.map(opt=>`
+    <button class="tg-opt-btn" id="tgopt-${opt.label}" onclick="selectTgOpt('${opt.label}')">
+      <span class="tg-opt-letter">${opt.label}</span>
+      <span>${opt.text.replace(' ✓','')}</span>
+    </button>
+  `).join('');
+}
 
-    function showResult() {
-        showScreen('result-screen');
-        const rank = document.getElementById('rank');
-        document.getElementById('final-stats').innerText = `TOTAL INTEL: ${score}/100`;
-        
-        if(score === 100) rank.innerText = "RANK: MEGALODON";
-        else if(score >= 60) rank.innerText = "RANK: GREAT WHITE";
-        else rank.innerText = "RANK: ANCHOVY";
-    }
+function selectTgOpt(val){
+  if(tgAnswered)return;
+  tgSelected=val;
+  document.querySelectorAll('.tg-opt-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('tgopt-'+val)?.classList.add('selected');
+}
 
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
+function checkTgAnswer(){
+  if(tgAnswered)return;
+  if(!tgSelected){
+    const btn=document.getElementById('tgCheckBtn');
+    btn.style.animation='tgShake .4s ease';
+    setTimeout(()=>btn.style.animation='',500);
+    return;
+  }
+  tgAnswered=true;
+  const q=trainQuestions[tgCurrent];
+  const correct=tgSelected===q.answer;
+
+  document.querySelectorAll('.tg-opt-btn').forEach(b=>b.disabled=true);
+  const selBtn=document.getElementById('tgopt-'+tgSelected);
+  if(correct){selBtn.classList.add('correct');}
+  else{
+    selBtn.classList.add('wrong');
+    document.getElementById('tgopt-'+q.answer)?.classList.add('show-correct');
+  }
+
+  if(correct){tgScore+=20;spawnTgParticles(q.carColor);}
+  tgResults.push({correct,answer:tgSelected});
+  document.getElementById('tgScoreDisplay').textContent=tgScore;
+
+  const fb=document.getElementById('tgFeedback');
+  fb.style.display='block';
+  if(correct){
+    fb.className='tg-feedback tg-fb-correct';
+    fb.innerHTML=`<div class="tg-fb-title">🎉 Chính xác!</div><div class="tg-fb-detail">✅ <b>${q.fullSentence}</b><br>${q.explain}</div>`;
+  }else{
+    fb.className='tg-feedback tg-fb-wrong';
+    fb.innerHTML=`<div class="tg-fb-title">❌ Chưa đúng!</div><div class="tg-fb-detail">✅ Đáp án: <b>${q.fullSentence}</b><br>${q.explain}</div>`;
+  }
+
+  document.getElementById('tgCheckBtn').disabled=true;
+  const nxt=document.getElementById('tgNextBtn');
+  nxt.style.display='block';
+  nxt.textContent=tgCurrent<4?'Toa tiếp theo →':'🏁 Xem kết quả!';
+  tgSelected=null;
+}
+
+function nextTgQuestion(){
+  tgCurrent++;
+  if(tgCurrent>=5){
+    // Mark all done
+    for(let i=0;i<5;i++) document.getElementById('st'+i).className='tg-stop done';
+    document.getElementById('tgRailDone').style.width='100%';
+    showTgResult();
+  } else {
+    renderTgQuestion();
+  }
+}
+
+function spawnTgParticles(color){
+  const colors=[color,'#fff','#ffd700',color+'99'];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.style.cssText=`
+      position:fixed;width:10px;height:10px;border-radius:50%;
+      pointer-events:none;z-index:9999;
+      left:${Math.random()*80+10}%;top:40%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      --tx:${(Math.random()-.5)*200}px;
+      --ty:${-(Math.random()*150+50)}px;
+      animation:pfloat 1.4s ease-out forwards;
+      animation-delay:${Math.random()*.3}s;
+    `;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1800);
+  }
+}
+
+function showTgResult(){
+  document.getElementById('tgGame').style.display='none';
+  const res=document.getElementById('tgResult');
+  res.style.display='block';
+
+  const correct=tgResults.filter(r=>r.correct).length;
+  let grade,gradeClass,msg,emoji;
+  if(correct===5){grade='🥇 Học Sinh Xuất Sắc!';gradeClass='tg-grade-a';msg='Tất cả đúng! Bạn dùng Past Continuous rất thành thạo!';emoji='🏆';}
+  else if(correct>=3){grade='🥈 Giỏi Lắm!';gradeClass='tg-grade-b';msg='Gần đúng hết rồi! Nhớ dùng was/were + V-ing nhé!';emoji='🌟';}
+  else{grade='🥉 Cố Lên!';gradeClass='tg-grade-c';msg='Ôn lại Past Continuous rồi thử lại nhé! You can do it!';emoji='💪';}
+
+  document.getElementById('tgResultEmoji').textContent=emoji;
+  document.getElementById('tgResultScore').textContent=tgScore;
+  document.getElementById('tgResultSub').textContent=correct+'/5 câu đúng';
+  document.getElementById('tgGrade').textContent=grade;
+  document.getElementById('tgGrade').className='tg-grade '+gradeClass;
+  document.getElementById('tgMsg').textContent=msg;
+
+  const colors=['#ff7043','#0288d1','#388e3c','#f9a825','#7b1fa2'];
+  const emojis=['👤','👴','👩','👨','👧'];
+  const carsHtml=tgResults.map((r,i)=>`
+    <div class="tg-car-result ${r.correct?'correct':'wrong'}" style="background:${colors[i]};min-width:60px;">
+      ${emojis[i]}<br><small style="font-size:10px">${r.correct?'✓':'✗'}</small>
+    </div>
+  `).join('');
+  document.getElementById('tgCarsResult').innerHTML=carsHtml;
+
+  for(let i=0;i<3;i++) setTimeout(()=>spawnTgParticles('#ff4757'),i*300);
+}
+
+function restartTrainGame(){
+  tgCurrent=0;tgScore=0;tgResults=[];tgAnswered=false;tgSelected=null;
+  document.getElementById('tgScoreDisplay').textContent='0';
+  document.getElementById('tgResult').style.display='none';
+  document.getElementById('tgStart').style.display='flex';
+  // reset track
+  document.getElementById('tgRailDone').style.width='0%';
+  for(let i=0;i<5;i++) document.getElementById('st'+i).className='tg-stop upcoming';
+}
+
+/* ================================================================
+   ⛏️ GOLD MINE GAME
+================================================================ */
+let gmInitialized=false;
+let currentQ=0,score=0,answered=false,results=[],selectedOpt=null;
+
+const questions=[
+  {id:1,sentence:'What ___ you ___ yesterday morning at 8 o\'clock?',tense:'continuous',hint:'⏰ "At 8 o\'clock" → hành động đang diễn ra tại thời điểm đó',options:[{label:'A',text:'did — do',value:'A'},{label:'B',text:'were — doing',value:'B'},{label:'C',text:'was — do',value:'C'},{label:'D',text:'did — doing',value:'D'}],answer:'B',fullSentence:'What were you doing yesterday morning at 8 o\'clock?',explanation_en:'"At 8 o\'clock" = a specific moment → action was IN PROGRESS at that time → Past Continuous: were + V-ing',explanation_vi:'🇻🇳 "At 8 o\'clock" (lúc 8 giờ) → chỉ thời điểm cụ thể trong quá khứ → hành động ĐANG DIỄN RA lúc đó → dùng Quá khứ tiếp diễn: were + V-ing\n\n✅ Công thức hỏi: What + were/was + S + V-ing + time?'},
+  {id:2,sentence:'Last year, earthquakes ___ a lot of houses in Japan.',tense:'simple',hint:'📅 "Last year" → khoảng thời gian đã hoàn toàn kết thúc',options:[{label:'A',text:'were destroying',value:'A'},{label:'B',text:'has destroyed',value:'B'},{label:'C',text:'destroyed',value:'C'},{label:'D',text:'was destroying',value:'D'}],answer:'C',fullSentence:'Last year, earthquakes destroyed a lot of houses in Japan.',explanation_en:'"Last year" = a completed time period → the action is finished → Past Simple (V-ed / V2)',explanation_vi:'🇻🇳 "Last year" (năm ngoái) → thời gian đã KẾT THÚC hoàn toàn → hành động xảy ra và hoàn thành trong quá khứ → dùng Quá khứ đơn (V2/ed)\n\n✅ Dấu hiệu nhận biết: last year/month/week, yesterday, ago...'},
+  {id:3,sentence:'He ___ the flowers when the tornado ___.',tense:'both',hint:'🌪️ Hành động đang diễn ra bị gián đoạn bởi sự kiện đột ngột',options:[{label:'A',text:'was watering — came',value:'A'},{label:'B',text:'watered — was coming',value:'B'},{label:'C',text:'watered — came',value:'C'},{label:'D',text:'was watering — was coming',value:'D'}],answer:'A',fullSentence:'He was watering the flowers in his garden when the tornado came.',explanation_en:'Ongoing background action (was watering) + sudden interrupting event (came). Formula: Past Continuous + when + Past Simple',explanation_vi:'🇻🇳 Cấu trúc kinh điển: Hành động đang diễn ra (was watering) BỊ GIÁN ĐOẠN bởi sự kiện đột ngột (came)\n\n✅ Công thức: S + was/were + V-ing + when + S + V2/ed\n⚠️ "when" nối 2 vế: vế trước dùng QK tiếp diễn, vế sau dùng QK đơn'},
+  {id:4,sentence:'While they ___ for help, the rescue workers ___.',tense:'both',hint:'🚁 "While" → hành động nền đang diễn ra, sự kiện khác xuất hiện',options:[{label:'A',text:'called — were appearing',value:'A'},{label:'B',text:'were calling — appeared',value:'B'},{label:'C',text:'called — appeared',value:'C'},{label:'D',text:'were calling — were appearing',value:'D'}],answer:'B',fullSentence:'While they were calling for help, the rescue workers appeared.',explanation_en:'"While" introduces the ongoing background action (Past Continuous). The workers appearing is the sudden event (Past Simple)',explanation_vi:'🇻🇳 "While" (trong khi) → luôn đi với Quá khứ TIẾP DIỄN ở mệnh đề đó\n\n✅ Công thức: While + S + was/were + V-ing, S + V2/ed\n⚠️ Appeared = sự kiện xảy ra ĐỘT NGỘT → Quá khứ đơn'},
+  {id:5,sentence:'___ you ___ to music at 9 o\'clock yesterday evening?',tense:'continuous',hint:'⏰ "At 9 o\'clock" → hành động đang diễn ra tại thời điểm cụ thể đó',options:[{label:'A',text:'Did — listen',value:'A'},{label:'B',text:'Was — listening',value:'B'},{label:'C',text:'Were — listening',value:'C'},{label:'D',text:'Did — listening',value:'D'}],answer:'C',fullSentence:'Were you listening to music at 9 o\'clock yesterday evening?',explanation_en:'"At 9 o\'clock" = specific moment → action was ongoing at that time → Past Continuous question: Were + S + V-ing?',explanation_vi:'🇻🇳 "At 9 o\'clock" (lúc 9 giờ) → thời điểm cụ thể → hành động ĐANG XẢY RA lúc đó → Quá khứ tiếp diễn\n\n✅ Câu hỏi QK tiếp diễn: Were/Was + S + V-ing + time?\n💡 "You" → dùng "Were" (không phải "Was")'},
+];
+
+function initGoldMine(){
+  gmInitialized=true;
+  currentQ=0;score=0;answered=false;results=[];selectedOpt=null;
+  renderQuestion();
+}
+
+function getTenseTag(tense){
+  if(tense==='simple') return '<span class="tense-tag tag-simple">⚡ Past Simple</span>';
+  if(tense==='continuous') return '<span class="tense-tag tag-continuous">〰 Past Continuous</span>';
+  return '<span class="tense-tag tag-both">⚡〰 Cả hai thì</span>';
+}
+
+function spawnParticles(){
+  const wrap=document.getElementById('particles');
+  if(!wrap) return;
+  const colors=['#ffd700','#ffaa00','#ff8c00','#fffde7'];
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const tx=(Math.random()-.5)*240;
+    const ty=-(Math.random()*180+60);
+    const color=colors[Math.floor(Math.random()*colors.length)];
+    p.style.cssText=`left:${Math.random()*80+10}%;top:38%;--tx:${tx}px;--ty:${ty}px;background:${color};animation-delay:${Math.random()*.3}s`;
+    wrap.appendChild(p);
+    setTimeout(()=>p.remove(),1700);
+  }
+}
+
+function renderQuestion(){
+  const q=questions[currentQ];
+  answered=false;
+  document.getElementById('q-num').textContent=currentQ+1;
+  document.getElementById('progress-fill').style.width=(currentQ/5*100)+'%';
+  const optionsHTML=q.options.map(opt=>`
+    <button class="option-btn" id="opt-${opt.value}" onclick="selectOption('${opt.value}')">
+      <span class="opt-letter">${opt.label}</span>
+      <span>${opt.text}</span>
+    </button>
+  `).join('');
+  document.getElementById('question-area').innerHTML=`
+    <div class="q-card">
+      <div class="q-badge">
+        <div class="q-badge-gem">${q.id}</div>
+        <span class="q-badge-text">Câu hỏi ${q.id} / 5</span>
+      </div>
+      ${getTenseTag(q.tense)}
+      <div class="q-text">${q.sentence}</div>
+      <div class="q-hint">${q.hint}</div>
+      <div class="options-label">Chọn đáp án đúng</div>
+      <div class="options-grid">${optionsHTML}</div>
+      <div class="feedback" id="feedback"></div>
+      <div class="btn-row">
+        <button class="btn-primary" id="btn-check" onclick="checkAnswer()">⛏️ Đào Vàng!</button>
+        <button class="btn-secondary" id="btn-next" onclick="nextQuestion()">Câu tiếp →</button>
+      </div>
+    </div>
+  `;
+}
+
+function selectOption(val){
+  if(answered)return;
+  selectedOpt=val;
+  document.querySelectorAll('.option-btn').forEach(btn=>btn.classList.remove('selected'));
+  document.getElementById('opt-'+val)?.classList.add('selected');
+}
+
+function checkAnswer(){
+  if(answered)return;
+  if(!selectedOpt){
+    const btn=document.getElementById('btn-check');
+    if(btn){btn.style.animation='shake .4s ease';setTimeout(()=>btn.style.animation='',500);}
+    return;
+  }
+  const q=questions[currentQ];
+  const correct=selectedOpt===q.answer;
+  answered=true;
+  document.querySelectorAll('.option-btn').forEach(btn=>btn.disabled=true);
+  const selectedBtn=document.getElementById('opt-'+selectedOpt);
+  if(correct){selectedBtn.classList.add('correct');}
+  else{selectedBtn.classList.add('wrong');const cb=document.getElementById('opt-'+q.answer);if(cb)cb.classList.add('show-correct');}
+  if(correct){score+=20;spawnParticles();const bar=document.getElementById('bar'+currentQ);if(bar)bar.classList.add('earned');}
+  document.getElementById('score-display').textContent=score;
+  results.push(correct);
+  const fb=document.getElementById('feedback');
+  fb.style.display='block';
+  if(correct){
+    fb.className='feedback fb-correct';
+    fb.innerHTML=`<div class="fb-title">🥇 Chính xác! +20 điểm vàng!</div><div class="fb-en">${q.explanation_en}</div><div class="fb-vi">${q.explanation_vi.replace(/\n/g,'<br>')}</div>`;
+  }else{
+    fb.className='feedback fb-wrong';
+    fb.innerHTML=`<div class="fb-title">❌ Chưa đúng! Xem giải thích nhé:</div><div class="fb-en">${q.explanation_en}</div><div class="fb-vi">${q.explanation_vi.replace(/\n/g,'<br>')}</div><br><strong style="color:#fbbf24;">✅ Đáp án đúng: ${q.fullSentence}</strong>`;
+  }
+  const btnCheck=document.getElementById('btn-check');
+  const btnNext=document.getElementById('btn-next');
+  if(btnCheck)btnCheck.disabled=true;
+  if(btnNext){btnNext.style.display='block';btnNext.textContent=currentQ<4?'Câu tiếp →':'🏆 Xem Kết Quả!';}
+  selectedOpt=null;
+}
+
+function nextQuestion(){
+  currentQ++;
+  if(currentQ>=5) showResult();
+  else renderQuestion();
+}
+
+function showResult(){
+  document.getElementById('question-area').style.display='none';
+  document.getElementById('progress-fill').style.width='100%';
+  const correctCount=results.filter(Boolean).length;
+  let grade,gradeClass,msg;
+  if(score===100){grade='🥇 Thợ Mỏ Vàng!';gradeClass='grade-gold';msg='Xuất sắc! Em nắm vững cả hai thì quá khứ rồi!';}
+  else if(score>=60){grade='🥈 Thợ Mỏ Bạc';gradeClass='grade-silver';msg='Khá lắm! Ôn thêm một chút nữa nhé!';}
+  else{grade='🥉 Thợ Mỏ Đồng';gradeClass='grade-bronze';msg='Cố gắng hơn nha! Xem lại lý thuyết và thử lại!';}
+  const summaryItems=results.map((r,i)=>`<div class="summary-item ${r?'s-correct':'s-wrong'}"><div class="summary-q">Q${i+1}</div><div>${r?'✓':'✗'}</div></div>`).join('');
+  const rs=document.getElementById('result-screen');
+  rs.style.display='block';
+  rs.innerHTML=`
+    <span class="trophy">🏆</span>
+    <div class="result-title">Hoàn thành mỏ vàng!</div>
+    <div class="result-score">${score}<span>/100</span></div>
+    <div class="result-msg">${correctCount} / 5 câu đúng</div>
+    <div class="grade-badge ${gradeClass}">${grade}</div>
+    <div style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">${msg}</div>
+    <div class="summary-grid">${summaryItems}</div>
+    <div style="font-size:12px;color:var(--text-dim);margin:0 0 28px;">
+      <strong style="color:#fbbf24;">Tóm tắt ngữ pháp:</strong><br>
+      ⚡ <em>Past Simple</em>: hành động hoàn thành (yesterday, last year, ago)<br>
+      〰 <em>Past Continuous</em>: hành động đang diễn ra (at X o'clock, while, when)
+    </div>
+    <button class="btn-restart" onclick="restartGame()">⛏️ Chơi Lại!</button>
+  `;
+  for(let i=0;i<4;i++) setTimeout(spawnParticles,i*350);
+}
+
+function restartGame(){
+  currentQ=0;score=0;answered=false;results=[];selectedOpt=null;
+  document.getElementById('score-display').textContent='0';
+  document.getElementById('progress-fill').style.width='0%';
+  for(let i=0;i<5;i++){const b=document.getElementById('bar'+i);if(b)b.classList.remove('earned');}
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('question-area').style.display='block';
+  renderQuestion();
+}
+
+// Keyboard for gold mine
+document.addEventListener('keydown',(e)=>{
+  if(document.getElementById('goldGame').classList.contains('active')){
+    if(answered){if(e.key==='Enter')nextQuestion();return;}
+    const map={a:'A',b:'B',c:'C',d:'D',A:'A',B:'B',C:'C',D:'D'};
+    if(map[e.key])selectOption(map[e.key]);
+    if(e.key==='Enter'&&selectedOpt)checkAnswer();
+  }
+});
 </script>
 </body>
 </html>
